@@ -1,5 +1,6 @@
 `include "mips.h" // various defines
 
+/*Control signals to recognise type of instuction*/
 module control(input [31:0] instruction, output reg [10:0] val);
 always@(instruction) begin
 	if((instruction[`op] == `SPECIAL) && (instruction[`function] == `ADD)) begin//add
@@ -46,7 +47,7 @@ always@(instruction) begin
 endmodule
 ////////////
 
-
+/*Helper Module*/
 module shift(input [31:0] addr, input [31:0] instruction, output reg [31:0] jumpAddr);
 reg [31:0] next_addr;
 always@(instruction)begin
@@ -57,7 +58,7 @@ endmodule
 ////////////
 
 
-
+/*Determines next address depending on control from instruction*/
 module mux_Jump(input val, input [31:0] jumpAddr, input [31:0] addrFromAdder, output reg [31:0] next_addr);
 always@(*) begin
 	if(val == 1)

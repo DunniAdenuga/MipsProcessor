@@ -20,10 +20,14 @@ for (i =0; i < 32; i++)
 	end
 always @(*) begin
 v0 = register[`v0];
+//v0 = register[4];
+//$display("v0 in Register, %d", v0);
+//$display("rr in Register, %d", rr);
 a0 = register[`a0];
+//a0 = register[2];
 data1 = register[rd1];
 data2 = register[rd2];
-if(write)
+if(write && (writeRegister > 0) )
 	register[writeRegister] = rr;
 end
 endmodule

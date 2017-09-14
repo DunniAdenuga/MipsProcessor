@@ -9,14 +9,24 @@
 `define regWrite  2
 `define aluSrc  1
 `define memWrite  0
+//`timescale 1s/10ps
 
-module syscall(input[31:0] instruction, input [31:0] v0, input [31:0] a0);
+/*Handles print and exit system calls*/
+module syscall(input[31:0] instruction, input curr_time, input [31:0] v0, input [31:0] a0);
 always@(*) begin
 if(instruction == 32'h0000000C) begin
-	//$display("here, v0 - %d, a0 - %d", v0, a0);
+	$display("here, v0 - %d, a0 - %d", v0, a0);
 	if(v0 == 1)
 		$display("a0 - %x",a0);
 	else if(v0 == 10) begin
+	//At the end of the simulation (syscall 10), 
+	//print a summary of simulation statistics. 
+	//At a minimum include total simulation time, number of clock cycles, 
+	//number of instructions executed, and IPC (instructions per clock).
+	//$display("total simulation time: %d", $time - curr_time);
+	//$display("Number of clock cycles: %d", clockCycles);
+	//$display("Number of instructions executed: %d", mem.noOfInstructions);
+	//$display("Instructions per clock: %d", mem.noOfInstructions/clockCycles);
 		//$display("here222");
 		$finish;
 		end
@@ -25,7 +35,9 @@ end
 endmodule
 ////////////////////////////////////////////////////////
 
+/*connects all modules*/
 module testbench;
+integer curr_time;
 reg clock = 0;
 wire [31:0] current_addr;
 wire [31:0] add_addr;
@@ -44,6 +56,8 @@ wire [31:0] a0;
 wire [31:0] v0;
 wire [31:0] signExtendData;
 wire [31:0] muxAluResult;
+//integer  noOfInstructions = 0;
+integer noOfClock = 0;
 
 adder add(current_addr, add_addr);
 memory mem(current_addr, instruction);
@@ -53,35 +67,40 @@ mux_Jump m(val[`jump], jump_addr, add_addr, next_addr);//checks jump
 pcRegister pc(clock, next_addr, current_addr);
 muxForRegisters muxForR(instruction, val[`regDst], writeReg);
 //change aluResult to rr
-registers regis(instruction[25:21],instruction[20:16],writeReg, aluResult, val[`regWrite], readData1, readData2, v0, a0);
-syscall sys(instruction, v0, a0);
+registers regis(instruction[25:21],instruction[20:16],writeReg, rr, val[`regWrite], readData1, readData2, v0, a0);
+//syscall sys(instruction, curr_time,  v0, a0);
 signExtend sE(instruction[15:0], signExtendData);
 muxForALU muxForA(val[`aluSrc], readData2, signExtendData, muxAluResult);
 alu al(val[`aluOP], readData1, muxAluResult, aluResult);
-//dataMemory dm(clock, aluResult, readData2, val[`memRead], val[`memWrite], dataMemResult);
-//muxAfterDataMemory mADM(val[`memToReg], dataMemResult,aluResult, rr);
+dataMemory dm(clock, aluResult, readData2, val[`memRead], val[`memWrite], dataMemResult);
+muxAfterDataMemory mADM(val[`memToReg], dataMemResult,aluResult, rr);
+
 
 initial
 begin
     $dumpfile("test.vcd");
-    $dumpvars(0,testbench);	
+    $dumpvars(0,testbench);
+    curr_time = $realtime;	
     //$monitor("instruction = %08x, val - control bits = %08x", instruction, val);
 end
 
 always
   begin                     // inline clock generator
     #10; clock = ~clock;
-    /*if(instruction == 32'h0000000C) begin
-	$display("here");
-	$display("v0 - %x",v0);
-	$display("a0 - %x",a0);
+    noOfClock = noOfClock + 1;
+    if((instruction == 32'h0000000C)&& (clock == 1)) begin
+	//$display("here, v0 - %d, a0 - %d", v0, a0);
 	if(v0 == 1)
 		$display("a0 - %x",a0);
-	else if(v0 == 10)
+	else 
+		if(v0 == 10)begin
+	$display("total simulation time: %d ", $realtime - curr_time);
+	$display("Number of clock cycles: %d", noOfClock/2);
+	$display("Number of instructions executed: %d", mem.noOfInstructions);
+	$display("Instructions per clock: %d", mem.noOfInstructions/(noOfClock/2));
 		$finish;
-	end*/
-    if(instruction == 0)
-	$finish;
+		end
+     end
   end
 
 endmodule

@@ -17,6 +17,7 @@ else
 end
 endmodule
 
+/*Arithmetic Logic Unit - performs arithmetic operations based on control signals*/
 module alu(input [2:0] aluOp,input [31:0] readData, input [31:0] readData2, output reg [31:0] aluResult);
 // aluOp comes from the control signal
 always@(*) begin

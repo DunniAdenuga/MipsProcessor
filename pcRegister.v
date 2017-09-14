@@ -1,3 +1,4 @@
+/*Assign next address*/
 module pcRegister(input clock, input  [31:0] next_addr, output reg [31:0] addr);
 
 initial begin
@@ -9,7 +10,7 @@ endmodule
 ////////////
 
 
-
+/*Add 4 to current address*/
 module adder(input [31:0] addr, output reg [31:0] out);
 
 always@(addr)
@@ -18,9 +19,10 @@ always@(addr)
 endmodule
 ////////////
 
-
+/*Reads in Instructions from Memory*/
 module memory(input [31:0] addr, output reg [31:0] instruction);
 
+integer noOfInstructions = 0;
 reg [31:0] mem [32'h100000:32'h101000]; // ask why this instead of [3:0]
 reg [31:0] word_addr;
 
@@ -31,6 +33,7 @@ always @(addr)
 begin
 	word_addr = addr >> 2; // ask difference btwn read and word address and need for this >>2
 	instruction = mem[word_addr];
+	noOfInstructions = noOfInstructions + 1;
 end
 endmodule
 ////////////
