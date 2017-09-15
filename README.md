@@ -8,7 +8,7 @@ Some of the modules implemented include the pcRegister, which is assigned the du
 ![alt text](https://github.com/DunniAdenuga/MipsProcessor/blob/master/designPic.png)
 
 ## Compilation
-It is important to have the specified Makefile and add_test.s (assembly code instructions for adding two numbers). Then, you `make`. This creates the file *add_test.v* with the necessary instructions for testing the processor. This program makes use of the "mips.h" file too.
+It is important to have the specified Makefile and add_test.s (assembly code instructions for adding two numbers). Then, you `make`. This creates the file *add_test.v* with the necessary instructions for testing the processor. This program makes use of the *mips.h* file too.
 To compile, you run: 
                   `iverilog main.v pcRegister.v registers.v alu.v control.v dataMemory.v`
 
